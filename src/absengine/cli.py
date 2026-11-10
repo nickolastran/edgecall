@@ -247,6 +247,15 @@ def backtest(sample: Sample = False) -> None:
     backtest_stage(s)
 
 
+@app.command()
+def players(sample: Sample = False) -> None:
+    """Per-player 2026 ABS challenge value (net wins), with names."""
+    from absengine.eval.players import players_stage
+
+    s, _, _ = _ctx(sample)
+    players_stage(s)
+
+
 @app.command("export-web")
 def export_web(sample: Sample = False) -> None:
     """Write web/public/data/engine.json for the static web app."""

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Engine, nearestEdge, zoneDistance, BALL_R, PLATE_HALF_W, type CI, type EngineData, type Result, type Situation } from "./engine";
+import { Engine, nearestEdge, zoneDistance, BALL_R, PLATE_HALF_W, type CI, type EngineData, type Player, type Result, type Situation } from "./engine";
 
 const API = import.meta.env.VITE_API_URL as string | undefined;
 const ZONE_HALF_H = 9.5; // 19 in tall zone (typical certified height ~71 in)
@@ -106,6 +106,7 @@ function Tool({ data }: { data: EngineData }) {
 
       <ThresholdMap engine={engine} sit={sit} p={r.p_overturn} />
       {data.backtest && <Backtest bt={data.backtest} />}
+      {data.players && data.players.length > 0 && <Players players={data.players} />}
       <Umpires data={data} selected={f.umpId} onPick={(id) => set("umpId", id)} />
 
       <footer className="foot">
@@ -283,6 +284,85 @@ function Backtest({ bt }: { bt: NonNullable<EngineData["backtest"]> }) {
   );
 }
 const pct0 = (v: number | null) => (v === null ? "–" : `${Math.round(v * 100)}%`);
+
+type SortKey = "net_wins" | "challenges" | "success" | "wins_gained" | "wins_spent" | "runs_gained";
+const ROLES: [string, string][] = [["all", "Everyone"], ["batter", "Batters"], ["catcher", "Catchers"], ["pitcher", "Pitchers"]];
+
+function Players({ players }: { players: Player[] }) {
+  const [role, setRole] = useState("all");
+  const [minN, setMinN] = useState(10);
+  const [q, setQ] = useState("");
+  const [sort, setSort] = useState<SortKey>("net_wins");
+  const [desc, setDesc] = useState(true);
+  const val = (p: Player, k: SortKey) => (k === "success" ? p.overturned / p.challenges : p[k]);
+  const list = players
+    .filter((p) => (role === "all" || p.role === role) && p.challenges >= minN && p.name.toLowerCase().includes(q.toLowerCase()))
+    .sort((a, b) => (desc ? val(b, sort) - val(a, sort) : val(a, sort) - val(b, sort)));
+  const byRole = (r: string) => {
+    const g = players.filter((p) => p.role === r);
+    const n = g.reduce((t, p) => t + p.challenges, 0), w = g.reduce((t, p) => t + p.overturned, 0);
+    return { n, rate: n ? w / n : 0, net: g.reduce((t, p) => t + p.net_wins, 0) };
+  };
+  const head = (k: SortKey, label: string) => (
+    <th scope="col" aria-sort={sort === k ? (desc ? "descending" : "ascending") : "none"}>
+      <button type="button" className={sort === k ? "on" : ""} onClick={() => (sort === k ? setDesc(!desc) : (setSort(k), setDesc(true)))}>
+        {label}{sort === k ? (desc ? " ▾" : " ▴") : ""}
+      </button>
+    </th>
+  );
+  const w = (v: number) => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(2)}`;
+  const c = byRole("catcher"), b = byRole("batter");
+  return (
+    <section className="block">
+      <h2>Who gets the most out of their challenges?</h2>
+      <p className="lede">
+        Every 2026 challenge, credited to the player who tapped their cap. Wins gained is the win probability their team picked up from overturned calls;
+        wins spent is what each failed challenge cost in future challenges. Catchers won {Math.round(c.rate * 100)}% of {c.n.toLocaleString()} challenges
+        and batters {Math.round(b.rate * 100)}% of {b.n.toLocaleString()}.
+      </p>
+      <div className="filters">
+        <Toggle value={role} options={ROLES} onChange={setRole} ariaLabel="Role" />
+        <label className="minn">At least
+          <select value={minN} onChange={(e) => setMinN(+e.target.value)}>
+            {[1, 5, 10, 20, 40].map((n) => <option key={n} value={n}>{n}</option>)}
+          </select> challenges
+        </label>
+        <input className="search" type="search" placeholder="Find a player" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Find a player" />
+      </div>
+      <div className="ump-wrap">
+        <table className="umps players">
+          <thead>
+            <tr>
+              <th scope="col">Player</th><th scope="col">Team</th><th scope="col">Role</th>
+              {head("challenges", "Challenges")}{head("success", "Won")}{head("wins_gained", "Wins gained")}
+              {head("wins_spent", "Wins spent")}{head("net_wins", "Net wins")}{head("runs_gained", "Runs")}
+            </tr>
+          </thead>
+          <tbody>
+            {list.map((p) => (
+              <tr key={`${p.id}-${p.role}`}>
+                <th scope="row">{p.name}</th>
+                <td>{p.team}</td>
+                <td className="role">{p.role}</td>
+                <td>{p.challenges}</td>
+                <td>{Math.round((p.overturned / p.challenges) * 100)}%</td>
+                <td>{w(p.wins_gained)}</td>
+                <td>{p.wins_spent.toFixed(2)}</td>
+                <td className={p.net_wins >= 0 ? "big" : "small"}>{w(p.net_wins)}</td>
+                <td>{p.runs_gained.toFixed(1)}</td>
+              </tr>
+            ))}
+            {list.length === 0 && <tr><td colSpan={9} className="muted">No players match. Try fewer minimum challenges.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      <p className="note">
+        {list.length.toLocaleString()} players shown. Net wins counts what happened, not decision quality: a player who only challenges
+        obvious misses in big spots will lead, and one who never challenges shows zero. Pitchers rarely challenge, so their numbers are small.
+      </p>
+    </section>
+  );
+}
 
 function Umpires({ data, selected, onPick }: { data: EngineData; selected: number | null; onPick: (id: number) => void }) {
   const [q, setQ] = useState("");

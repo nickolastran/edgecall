@@ -129,7 +129,15 @@ select, .search { padding: 6px 8px; border: 1px solid var(--line); border-radius
 .umps tr.sel { background: rgb(242 194 48 / 0.25); }
 .umps td.big { color: var(--strike); font-weight: 600; }
 .umps td.small { color: var(--ballc); font-weight: 600; }
-.ump-wrap { max-width: 900px; margin-inline: auto; max-height: 480px; overflow-y: auto; margin-top: 10px; }
+.ump-wrap { max-width: 980px; margin-inline: auto; max-height: 480px; overflow-y: auto; margin-top: 10px; }
+
+.filters { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 16px; margin-bottom: 10px; }
+.minn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.players thead th button { background: none; border: 0; padding: 0; cursor: pointer; color: inherit; font-weight: 500; }
+.players thead th button.on { color: var(--ink); font-weight: 600; }
+.players td.role { text-transform: capitalize; color: var(--muted); }
+.players td:nth-child(2), .players td.role { text-align: left; }
+.players thead th:nth-child(2), .players thead th:nth-child(3) { text-align: left; }
 
 .foot { margin-top: 56px; text-align: center; font-size: 13px; color: var(--muted); }
 .muted { color: var(--muted); }

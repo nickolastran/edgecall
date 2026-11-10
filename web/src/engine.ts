@@ -43,6 +43,20 @@ export interface Umpire {
   edges: Partial<Record<Edge, { mean: number; sd: number }>>;
 }
 
+export interface Player {
+  id: number;
+  name: string;
+  role: "batter" | "catcher" | "pitcher" | "other";
+  team: string;
+  challenges: number;
+  overturned: number;
+  wins_gained: number;
+  wins_spent: number;
+  net_wins: number;
+  avg_stakes: number;
+  runs_gained: number;
+}
+
 export interface EngineData {
   meta: { sample: boolean; generated: string };
   rules: { challenges_per_team: number; retain_on_success: boolean; regulation_innings: number };
@@ -51,6 +65,7 @@ export interface EngineData {
   dp: { V: Record<string, number[][][]>; cont: Record<string, number[][][]>; edges: number[]; max_c: number };
   grid: { edges: Edge[]; d: number[]; ump: number[]; p: number[] };
   umpires: Umpire[];
+  players?: Player[];
   backtest: {
     n_team_games: number;
     policies: Record<string, PolicyRow>;

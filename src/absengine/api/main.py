@@ -1,4 +1,4 @@
-"""FastAPI: /health, /evaluate, /policy/thresholds, /umpires/{id}.
+"""FastAPI: /health, /evaluate, /policy/thresholds, /players, /umpires/{id}.
 
 Artifacts come from ABS_SAMPLE / ABS_ROOT (pydantic-settings), default full mode.
 """
@@ -69,6 +69,24 @@ def policy_thresholds(
     ):
         if v is not None:
             t = t.filter(pl.col(col) == v)
+    return t.head(limit).to_dicts()
+
+
+@lru_cache
+def players_table() -> pl.DataFrame:
+    return pl.read_parquet(C.settings().artifacts / "players" / "players.parquet")
+
+
+@app.get("/players")
+def players(
+    role: Literal["batter", "catcher", "pitcher"] | None = None,
+    min_challenges: int = 1,
+    limit: int = Query(100, le=2000),
+) -> list[dict[str, Any]]:
+    """2026 challengers ranked by net wins from their challenges."""
+    t = players_table().filter(pl.col("challenges") >= min_challenges)
+    if role:
+        t = t.filter(pl.col("role") == role)
     return t.head(limit).to_dicts()
 
 

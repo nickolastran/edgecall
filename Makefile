@@ -3,7 +3,7 @@ SAMPLE ?=
 FLAG := $(if $(SAMPLE),--sample,)
 RUN := uv run absengine
 
-.PHONY: setup data runvalue overturn value policy backtest export serve web web-dev test lint all
+.PHONY: setup data runvalue overturn value policy backtest players export serve web web-dev test lint all
 
 setup:
 	uv sync --all-extras
@@ -26,6 +26,9 @@ policy:
 backtest:
 	$(RUN) backtest $(FLAG)
 
+players:
+	$(RUN) players $(FLAG)
+
 export:
 	$(RUN) export-web $(FLAG)
 
@@ -47,4 +50,4 @@ test:
 	uv run pytest
 	cd web && npm ci && npm test
 
-all: data runvalue overturn value policy backtest export
+all: data runvalue overturn value policy backtest players export

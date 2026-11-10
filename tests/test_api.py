@@ -21,10 +21,10 @@ pytestmark = pytest.mark.skipif(
 def client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
     monkeypatch.setenv("ABS_SAMPLE", "1")
     monkeypatch.setenv("ABS_ROOT", str(ROOT))
-    for f in (C.settings, main.engine, main.thresholds):
+    for f in (C.settings, main.engine, main.thresholds, main.players_table):
         f.cache_clear()
     yield TestClient(main.app)
-    for f in (C.settings, main.engine, main.thresholds):
+    for f in (C.settings, main.engine, main.thresholds, main.players_table):
         f.cache_clear()
 
 
@@ -58,3 +58,11 @@ def test_thresholds_and_umpire_404(client: TestClient) -> None:
     rows = client.get("/policy/thresholds", params={"side": "defense", "balls": 3, "limit": 5})
     assert len(rows.json()) == 5 and all(r["side"] == "defense" for r in rows.json())
     assert client.get("/umpires/1").status_code == 404
+
+
+def test_players(client: TestClient) -> None:
+    rows = client.get(
+        "/players", params={"role": "catcher", "min_challenges": 20, "limit": 3}
+    ).json()
+    assert len(rows) == 3 and all(r["role"] == "catcher" and r["challenges"] >= 20 for r in rows)
+    assert rows[0]["net_wins"] >= rows[1]["net_wins"]

@@ -269,6 +269,7 @@ def export_web(e: Engine, out: Path) -> Path:
         "backtest": json.loads((bt / "summary.json").read_text())
         if (bt / "summary.json").exists()
         else None,
+        "players": _players(s),
         "teams": pl.read_parquet(bt / "teams.parquet").to_dicts()
         if (bt / "teams.parquet").exists()
         else [],
@@ -277,6 +278,23 @@ def export_web(e: Engine, out: Path) -> Path:
     f = out / "engine.json"
     f.write_text(json.dumps(payload, separators=(",", ":"), default=_json_default))
     return f
+
+
+def _players(s: C.Settings) -> list[dict[str, Any]]:
+    p = s.artifacts / "players" / "players.parquet"
+    if not p.exists():
+        return []
+    t = pl.read_parquet(p).select(
+        pl.col("challenger_id").alias("id"),
+        "name",
+        "role",
+        "team",
+        "challenges",
+        "overturned",
+        *(pl.col(c).round(4) for c in ("wins_gained", "wins_spent", "net_wins", "avg_stakes")),
+        pl.col("runs_gained").round(2),
+    )
+    return t.to_dicts()
 
 
 def _json_default(o: object) -> object:

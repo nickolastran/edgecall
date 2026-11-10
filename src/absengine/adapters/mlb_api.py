@@ -316,3 +316,22 @@ def fetch_listed_heights(cfg: DataConfig, player_ids: Iterable[int], cache: Path
     cache.parent.mkdir(parents=True, exist_ok=True)
     out.write_parquet(cache)
     return out
+
+
+def fetch_player_names(cfg: DataConfig, player_ids: Iterable[int], cache: Path) -> pl.DataFrame:
+    """player_id -> full name from the people API, cached incrementally."""
+    schema = {"player_id": pl.Int64, "name": pl.String}
+    have = pl.read_parquet(cache) if cache.exists() else pl.DataFrame(schema=schema)
+    todo = sorted(set(player_ids) - set(have["player_id"].to_list()))
+    rows: list[dict[str, Any]] = []
+    if todo:
+        client = _RateLimitedClient(cfg)
+        for i in range(0, len(todo), 150):
+            chunk = todo[i : i + 150]
+            js = client.get_json("/v1/people", {"personIds": ",".join(map(str, chunk))})
+            got = {int(p["id"]): p.get("fullName") for p in js.get("people", [])}
+            rows.extend({"player_id": pid, "name": got.get(pid)} for pid in chunk)
+    out = pl.concat([have, pl.DataFrame(rows, schema=schema, orient="row")])
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    out.write_parquet(cache)
+    return out

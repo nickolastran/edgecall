@@ -15,6 +15,9 @@ flowchart LR
   F --> G[backtest: policies vs real 2026 players]
   F --> H[API /evaluate]
   G --> I[web app]
+  B --> P[players: net wins per challenger]
+  F --> P
+  P --> I
   F --> I
 ```
 
@@ -62,7 +65,7 @@ make web-dev               # http://localhost:5173
 | Command | What it does |
 |---|---|
 | `make all` | Full pipeline (fetches missing 2021–2025 Statcast, about 1–2 h) |
-| `make backtest` / `make export` | Backtest, then write `web/public/data/engine.json` |
+| `make backtest` / `make players` / `make export` | Backtest, per-player challenge value, then write `web/public/data/engine.json` |
 | `make web` | Static build in `web/dist` (GitHub Pages, Netlify, Vercel) |
 | `make serve` | FastAPI on :8000. Use `ABS_SAMPLE=1` for sample artifacts |
 | `make test` / `make lint` | pytest + vitest; ruff + mypy --strict |
@@ -81,6 +84,7 @@ GET  /health
 POST /evaluate              {"inning":7,"is_top":false,"outs":1,"base":2,"balls":2,"strikes":2,
                              "call":"strike","d_perc":0.2,"edge":"outside","challenges_left":1}
 GET  /policy/thresholds?side=offense&balls=3&strikes=2&challenges_left=1
+GET  /players?role=catcher&min_challenges=20
 GET  /umpires/{id}
 ```
 
