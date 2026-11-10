@@ -365,13 +365,15 @@ const ROLES: [string, string][] = [["all", "Everyone"], ["batter", "Batters"], [
 
 function Players({ players }: { players: Player[] }) {
   const [role, setRole] = useState("all");
+  const [team, setTeam] = useState("all");
+  const teams = useMemo(() => [...new Set(players.map((p) => p.team))].sort(), [players]);
   const [minN, setMinN] = useState(10);
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<SortKey>("net_wins");
   const [desc, setDesc] = useState(true);
   const val = (p: Player, k: SortKey) => (k === "success" ? p.overturned / p.challenges : p[k]);
   const list = players
-    .filter((p) => (role === "all" || p.role === role) && p.challenges >= minN && p.name.toLowerCase().includes(q.toLowerCase()))
+    .filter((p) => (role === "all" || p.role === role) && (team === "all" || p.team === team) && p.challenges >= minN && p.name.toLowerCase().includes(q.toLowerCase()))
     .sort((a, b) => (desc ? val(b, sort) - val(a, sort) : val(a, sort) - val(b, sort)));
   const byRole = (r: string) => {
     const g = players.filter((p) => p.role === r);
@@ -386,17 +388,24 @@ function Players({ players }: { players: Player[] }) {
     </th>
   );
   const w = (v: number) => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(2)}`;
-  const c = byRole("catcher"), b = byRole("batter");
+  const c = byRole("catcher"), b = byRole("batter"), pt = byRole("pitcher");
   return (
     <section className="block">
       <h2>Who gets the most out of their challenges?</h2>
       <p className="lede">
-        Every 2026 challenge, credited to the player who tapped their cap. Wins gained is the win probability their team picked up from overturned calls;
+        Every 2026 ABS challenge, from the player who tapped their helmet. Wins gained is the win probability their team picked up from overturned calls;
         wins spent is what each failed challenge cost in future challenges. Catchers won {Math.round(c.rate * 100)}% of {c.n.toLocaleString()} challenges
-        and batters {Math.round(b.rate * 100)}% of {b.n.toLocaleString()}.
+        {pt.n > 0 ? "," : " and"} batters {Math.round(b.rate * 100)}% of {b.n.toLocaleString()}
+        {pt.n > 0 && <>, and pitchers, who rarely challenge, just {Math.round(pt.rate * 100)}% of {pt.n.toLocaleString()} challenges</>}.
       </p>
       <div className="filters">
         <Toggle value={role} options={ROLES} onChange={setRole} ariaLabel="Role" />
+        <label className="minn">Team
+          <select value={team} onChange={(e) => { setTeam(e.target.value); if (e.target.value !== "all") setMinN(1); }}>
+            <option value="all">All teams</option>
+            {teams.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </label>
         <label className="minn">At least
           <select value={minN} onChange={(e) => setMinN(+e.target.value)}>
             {[1, 5, 10, 20, 40].map((n) => <option key={n} value={n}>{n}</option>)}
