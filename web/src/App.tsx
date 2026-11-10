@@ -89,7 +89,7 @@ function Tool({ data }: { data: EngineData }) {
           <Field label="Runners">
             <Bases base={f.base} onChange={(b) => set("base", b)} />
           </Field>
-          <Field label={`Challenges left (${r.side === "offense" ? "batting" : "fielding"} team)`}>
+          <Field label={`Challenges left for the ${r.side === "offense" ? "batting" : "fielding"} team`} hint={r.side === "offense" ? "Batters challenge strike calls." : "Catchers and pitchers challenge ball calls."}>
             <Toggle value={String(f.left)} options={[0, 1, 2, 3].map((c) => [String(c), `${c}`])} onChange={(v) => set("left", +v)} ariaLabel="Challenges left" />
           </Field>
           <Field label="Batter">
@@ -228,12 +228,16 @@ function ThresholdMap({ engine, sit, p }: { engine: Engine; sit: Situation; p: n
   const homeSide = (top: boolean) => (sit.call === "strike" ? !top : top); // challenging team is home?
   const myDiff = (homeSide(sit.is_top) ? 1 : -1) * sit.score_diff_home;
   return (
-    <section className="block">
+    <section className="block" id="worth">
       <h2>When would this pitch be worth it?</h2>
       <p className="lede">
         Each cell is the balanced overturn chance for the same pitch, count, runners and challenges left,
         at a different point in the game. Highlighted cells are where your {Math.round(p * 100)}% read meets expectation.
       </p>
+      <div className="legend" aria-hidden>
+        <span><i className="sw clear" /> Worth challenging: your {Math.round(p * 100)}% read clears the bar</span>
+        <span><i className="sw ramp" /> Not worth it: darker means a higher bar</span>
+      </div>
       <div className="heat-wrap">
         <table className="heat">
           <thead>
@@ -304,7 +308,7 @@ function Backtest({ bt }: { bt: NonNullable<EngineData["backtest"]> }) {
   const edge = wins("dp_perceived"), human = wins("human");
   const hvd = bt.human_vs_dp;
   return (
-    <section className="block">
+    <section className="block" id="strategies">
       <h2>How many wins are smart challenges worth?</h2>
       <p className="lede">
         We replayed every close call from the second half of 2026 ({bt.n_team_games.toLocaleString()} team-games) under different challenge strategies,
@@ -390,7 +394,7 @@ function Players({ players }: { players: Player[] }) {
   const w = (v: number) => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(2)}`;
   const c = byRole("catcher"), b = byRole("batter"), pt = byRole("pitcher");
   return (
-    <section className="block">
+    <section className="block" id="players">
       <h2>Who gets the most out of their challenges?</h2>
       <p className="lede">
         Every 2026 ABS challenge, from the player who tapped their helmet. Wins gained is the win probability their team picked up from overturned calls;
@@ -454,7 +458,7 @@ function Umpires({ data, selected, onPick }: { data: EngineData; selected: numbe
   const edges = ["top", "bottom", "inside", "outside"] as const;
   const fmt = (v?: number) => (v === undefined ? "–" : `${v > 0 ? "+" : ""}${v.toFixed(2)}`);
   return (
-    <section className="block">
+    <section className="block" id="umpires">
       <h2>Plate umpires</h2>
       <p className="lede">
         How much each umpire's zone runs bigger (+) or smaller (−) than average on each edge, as a shift in the log-odds of a strike call
@@ -481,8 +485,14 @@ function Umpires({ data, selected, onPick }: { data: EngineData; selected: numbe
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div className="field"><span className="label">{label}</span><div className="row">{children}</div></div>;
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div className="field">
+      <span className="label">{label}</span>
+      <div className="row">{children}</div>
+      {hint && <span className="hint">{hint}</span>}
+    </div>
+  );
 }
 
 function Toggle<T extends string>({ value, options, onChange, ariaLabel }: { value: T; options: [T, string][]; onChange: (v: T) => void; ariaLabel?: string }) {
@@ -510,5 +520,5 @@ function Bases({ base, onChange }: { base: number; onChange: (b: number) => void
     <button type="button" key={bit} className={`bag ${base & bit ? "on" : ""}`} style={{ left: x, top: y }}
       aria-pressed={!!(base & bit)} aria-label={label} onClick={() => onChange(base ^ bit)} />
   );
-  return <div className="diamond">{bag(2, "Runner on second", 22, 0)}{bag(4, "Runner on third", 0, 22)}{bag(1, "Runner on first", 44, 22)}</div>;
+  return <div className="diamond">{bag(2, "Runner on second", 38, 6)}{bag(4, "Runner on third", 6, 38)}{bag(1, "Runner on first", 70, 38)}</div>;
 }

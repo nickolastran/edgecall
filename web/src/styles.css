@@ -63,6 +63,7 @@ button, input, select { font: inherit; color: inherit; }
 .controls { display: grid; gap: 12px; }
 .field { display: grid; gap: 4px; }
 .label { font-size: 14px; color: var(--muted); }
+.hint { font-size: 12px; color: var(--muted); }
 .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
 .toggle button { border: 0; background: transparent; padding: 5px 11px; min-width: 36px; cursor: pointer; }
@@ -75,8 +76,9 @@ button, input, select { font: inherit; color: inherit; }
 .score { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
 .score input { width: 56px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--paper); }
 select, .search { padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--chalk); max-width: 100%; }
-.diamond { position: relative; width: 64px; height: 44px; }
-.bag { position: absolute; width: 18px; height: 18px; transform: rotate(45deg); border: 2px solid var(--muted); background: var(--paper); cursor: pointer; padding: 0; }
+.diamond { position: relative; width: 104px; height: 72px; }
+.bag { position: absolute; width: 28px; height: 28px; transform: rotate(45deg); border: 2px solid var(--muted); background: var(--paper); cursor: pointer; padding: 0; border-radius: 2px; }
+.bag:hover { border-color: var(--ink); }
 .bag.on { background: var(--bulb); border-color: var(--ink); }
 
 /* The one loud thing: the scoreboard verdict. */
@@ -100,6 +102,11 @@ select, .search { padding: 6px 8px; border: 1px solid var(--line); border-radius
 .note { margin-inline: auto; max-width: 72ch; color: var(--muted); font-size: 14px; }
 
 .heat-wrap, .ump-wrap { overflow-x: auto; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 22px; margin: 0 auto 12px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend .sw { display: inline-block; width: 28px; height: 14px; border-radius: 2px; }
+.legend .sw.clear { background: var(--bulb); }
+.legend .sw.ramp { background: linear-gradient(90deg, rgb(var(--heat) / 0.1), rgb(var(--heat) / 0.85)); }
 .heat { margin: 0 auto; border-collapse: separate; border-spacing: 2px; font-size: 15px; }
 .heat th { font-weight: 500; color: var(--muted); padding: 2px 8px; white-space: nowrap; text-align: right; }
 .heat thead th { text-align: center; }
