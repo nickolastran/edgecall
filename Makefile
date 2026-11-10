@@ -3,7 +3,7 @@ SAMPLE ?=
 FLAG := $(if $(SAMPLE),--sample,)
 RUN := uv run absengine
 
-.PHONY: setup data runvalue overturn value policy backtest export serve web test lint all
+.PHONY: setup data runvalue overturn value policy backtest export serve web web-dev test lint all
 
 setup:
 	uv sync --all-extras
@@ -33,7 +33,10 @@ serve:
 	uv run uvicorn absengine.api.main:app --host 0.0.0.0 --port 8000
 
 web: export
-	cd web && npm install && npm run build
+	cd web && npm ci && npm run build
+
+web-dev:
+	cd web && npm ci && npm run dev
 
 lint:
 	uv run ruff format --check src tests
@@ -42,5 +45,6 @@ lint:
 
 test:
 	uv run pytest
+	cd web && npm ci && npm test
 
 all: data runvalue overturn value policy backtest export

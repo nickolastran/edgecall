@@ -238,5 +238,25 @@ def policy(sample: Sample = False) -> None:
     policy_stage(s)
 
 
+@app.command()
+def backtest(sample: Sample = False) -> None:
+    """Policies vs actual humans on held-out 2026: wins/runs per team-season with CIs."""
+    from absengine.eval.backtest import backtest_stage
+
+    s, _, _ = _ctx(sample)
+    backtest_stage(s)
+
+
+@app.command("export-web")
+def export_web(sample: Sample = False) -> None:
+    """Write web/public/data/engine.json for the static web app."""
+    from absengine.serve import Engine
+    from absengine.serve import export_web as _export
+
+    s, _, _ = _ctx(sample)
+    f = _export(Engine.load(s), s.root / "web" / "public" / "data")
+    log.info("wrote %s (%.0f KB)", f, f.stat().st_size / 1024)
+
+
 if __name__ == "__main__":
     app()
