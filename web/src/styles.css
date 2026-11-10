@@ -38,6 +38,8 @@ button, input, select { font: inherit; color: inherit; }
 .hero { min-height: calc(100svh - 24px); padding-bottom: 24px; }
 .masthead { margin-bottom: 24px; }
 .masthead h1 { font-size: 48px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 6px; line-height: 1; }
+.masthead h1 { display: flex; align-items: center; gap: 12px; }
+.logo { width: 40px; height: 40px; flex: none; }
 .masthead p { margin: 0; max-width: 62ch; color: var(--muted); font-size: 17px; }
 
 .desk { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr) minmax(280px, 1.05fr); gap: 20px; align-items: start; }

@@ -52,7 +52,7 @@ function Tool({ data }: { data: EngineData }) {
     <main className="shell">
       <div className="hero">
       <header className="masthead">
-        <h1>EdgeCall</h1>
+        <h1><img className="logo" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />EdgeCall</h1>
         <p>Would you challenge that call? Put the pitch where you saw it, set the game situation, and get the call based on the ABS data from the latest season.</p>
       </header>
 

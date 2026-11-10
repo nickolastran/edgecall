@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 32 32">
+  <g transform="rotate(-20)">
+    <circle r="14.6" fill="#f7f4ee" stroke="#b9b2a6" stroke-width="1"/>
+    <g fill="none" stroke="#c8102e">
+      <path stroke-width="0.8" d="M-9 -11.4 Q-2.6 0 -9 11.4 M9 -11.4 Q2.6 0 9 11.4"/>
+      <path stroke-width="3.6" stroke-dasharray="0.7 1.9" d="M-9 -11.4 Q-2.6 0 -9 11.4 M9 -11.4 Q2.6 0 9 11.4"/>
+    </g>
+  </g>
+</svg>
