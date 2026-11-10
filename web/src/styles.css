@@ -32,7 +32,7 @@ h1, h2, .call, .bt-num, .stepper span, .heat th, .heat td { font-family: "Barlow
 button, input, select { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid var(--bulb); outline-offset: 2px; }
 
-.shell { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; }
 .masthead { margin-bottom: 24px; }
 .masthead h1 { font-size: 48px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 6px; line-height: 1; }
 .masthead p { margin: 0; max-width: 62ch; color: var(--muted); font-size: 17px; }
@@ -142,7 +142,13 @@ select, .search { padding: 6px 8px; border: 1px solid var(--line); border-radius
 .players td:nth-child(2), .players td.role { text-align: left; }
 .players thead th:nth-child(2), .players thead th:nth-child(3) { text-align: left; }
 
-.foot { margin-top: 56px; text-align: center; font-size: 13px; color: var(--muted); }
+.foot { border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.foot-in { max-width: 1180px; margin: 0 auto; padding: 14px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; }
+.foot p { margin: 0; max-width: 64ch; }
+.links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 14px; }
+.links span { margin-right: 6px; }
+.links a { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); text-decoration: none; padding: 3px 9px; border: 1px solid var(--line); border-radius: 4px; }
+.links a:hover { border-color: var(--board); background: var(--paper); }
 .muted { color: var(--muted); }
 .error { color: var(--ink); background: var(--paper); border-left: 4px solid var(--bulb); padding: 12px 16px; }
 
