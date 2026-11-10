@@ -47,9 +47,12 @@ button, input, select { font: inherit; color: inherit; }
 .zone .abs { fill: none; stroke: var(--ink); stroke-width: 0.35; }
 .zone .reach { fill: none; stroke: var(--muted); stroke-width: 0.15; stroke-dasharray: 0.6 0.5; }
 .zone .plate { fill: var(--line); }
-.zone .pitch { stroke: var(--paper); stroke-width: 0.3; }
-.zone .pitch.strike { fill: var(--strike); }
-.zone .pitch.ball { fill: var(--ballc); }
+.baseball .ring { fill: none; stroke-width: 0.22; }
+.baseball .ring.strike { stroke: var(--strike); }
+.baseball .ring.ball { stroke: var(--ballc); }
+.baseball .hide { fill: #f7f4ee; stroke: #b9b2a6; stroke-width: 0.08; }
+.baseball .seam { fill: none; stroke: #c8102e; stroke-width: 0.07; }
+.baseball .stitch { fill: none; stroke: #c8102e; stroke-width: 0.34; stroke-dasharray: 0.05 0.17; }
 .zone .tag { font-size: 1.5px; fill: var(--muted); }
 .readout { margin: 10px 0 0; font-size: 15px; }
 .seg { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }

@@ -158,11 +158,25 @@ function Zone({ f, onPick }: { f: Form; onPick: (x: number, z: number) => void }
         <rect className="abs" x={-W} y={-H} width={2 * W} height={2 * H} />
         <rect className="reach" x={-W - BALL_R} y={-H - BALL_R} width={2 * (W + BALL_R)} height={2 * (H + BALL_R)} rx={BALL_R} />
         <path className="plate" d={`M${-W} ${-VIEW + 1.5} h${2 * W} v-1.5 l${-W} -2.5 l${-W} 2.5 z`} />
-        <circle className={`pitch ${f.call}`} cx={f.x} cy={f.z} r={BALL_R} />
+        <Baseball x={f.x} z={f.z} call={f.call} />
       </g>
       <text className="tag" x={-VIEW + 1} y={-VIEW + 2.5}>{f.stand === "R" ? "Inside ←" : "← Outside"}</text>
       <text className="tag" x={VIEW - 1} y={-VIEW + 2.5} textAnchor="end">{f.stand === "R" ? "→ Outside" : "Inside →"}</text>
     </svg>
+  );
+}
+
+// Drawn at true size (radius = BALL_R inches). The ring color shows the umpire's call.
+function Baseball({ x, z, call }: { x: number; z: number; call: "strike" | "ball" }) {
+  const R = BALL_R;
+  const seams = [`M${-0.62 * R} ${-0.78 * R} Q${-0.18 * R} 0 ${-0.62 * R} ${0.78 * R}`, `M${0.62 * R} ${-0.78 * R} Q${0.18 * R} 0 ${0.62 * R} ${0.78 * R}`];
+  return (
+    <g className="baseball" transform={`translate(${x} ${z}) rotate(-20)`}>
+      <circle className={`ring ${call}`} r={R + 0.3} />
+      <circle className="hide" r={R} />
+      {seams.map((d) => <path key={d} className="seam" d={d} />)}
+      {seams.map((d) => <path key={`s${d}`} className="stitch" d={d} />)}
+    </g>
   );
 }
 
