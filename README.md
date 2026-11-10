@@ -35,21 +35,26 @@ Challenge when `P(overturn) × gain > (1 − P(overturn)) × option value`, i.e.
   tracked one. Perception noise is fit from who actually challenged in 2026. Umpire and catcher
   tendencies come from a partial-pooling model.
 
-## Results (sample mode: 2026 only, backtest on Jul–Sep)
+## Results (fit on 2021–2025, tested on Jul–Sep 2026)
 
-Wins per team per 162 games, with 95% game-bootstrap intervals:
+Run and win values and the overturn model are trained on 2021–2024, calibrated on 2025, and
+scored on the second half of 2026 (2,296 team-games). Wins per team per 162 games, with 95%
+game-bootstrap intervals:
 
-| Policy | Wins | Challenges / game | Overturned |
-|---|---|---|---|
-| Perfect information (ceiling) | 12.2 (11.7–12.7) | 4.9 | 100% |
-| **EdgeCall policy** | **4.9 (4.7–5.3)** | 2.8 | 46% |
-| Actual 2026 players | 4.1 (3.8–4.4) | 2.3 | 54% |
-| Challenge if it looks 1.0+ in off | 3.9 (3.7–4.2) | 3.3 | 48% |
-| Never | 0 | 0 | – |
+| Policy | Wins | Runs | Challenges / game | Overturned |
+|---|---|---|---|---|
+| Perfect information (ceiling) | 11.5 (11.0–11.9) | 112 | 4.9 | 100% |
+| **EdgeCall policy** | **4.8 (4.5–5.1)** | 41 | 2.8 | 47% |
+| Actual 2026 players | 3.9 (3.7–4.2) | 37 | 2.3 | 54% |
+| Challenge if it looks 1.0+ in off | 3.7 (3.5–3.9) | 36 | 3.2 | 48% |
+| Never | 0 | 0 | 0 | – |
 
-Where players and the policy disagree, players' extra challenges are on lower-value calls
-(1.9% average win-probability gain) than the ones the policy wants and they skip (2.8%).
-Re-run `make all` to get full-mode numbers (fit on 2021–2025, tested on 2026).
+EdgeCall is worth about 0.9 wins a season over what players actually did. Where players and the
+policy disagree, players' extra challenges are on lower-value calls (1.8% average
+win-probability gain) than the ones the policy wants and they skip (2.5%).
+
+The overturn model is checked against the 5,222 real 2026 challenges in the test window:
+predicted 53% overturned vs 54% actual (calibration error 0.04).
 
 Caveat: the backtest replays the game states that actually happened, so a counterfactual
 overturn doesn't change the rest of the game.

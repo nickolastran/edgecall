@@ -97,7 +97,11 @@ def called_pitches(
         project = plane == "mid_from_front"
     else:
         raise ValueError(f"unknown plane {plane!r}")
-    return add_zone_features(df, rules.zone, project=project)
+    # A few pre-ABS pitches lack the trajectory needed to project them to mid-plate: no
+    # distance, no label. Drop them here so every consumer sees finite distances.
+    return add_zone_features(df, rules.zone, project=project).filter(
+        pl.col("edge_dist_in").is_finite()
+    )
 
 
 def wrong_call_dist(d_in: np.ndarray, is_strike_call: np.ndarray) -> np.ndarray:

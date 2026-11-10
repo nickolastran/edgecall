@@ -136,3 +136,23 @@ def test_wrong_call_dist() -> None:
     dd = np.array([2.0, -2.0, 2.0, -2.0])
     k = np.array([True, True, False, False])
     assert wrong_call_dist(dd, k).tolist() == [2.0, -2.0, -2.0, 2.0]
+
+
+def test_called_pitches_drops_unprojectable() -> None:
+    """Pre-2026 pitches are projected to mid-plate from their trajectory; one without it
+    must be dropped, not passed on with a NaN distance (crashed the full-mode overturn fit)."""
+    from datetime import date
+
+    from absengine.overturn.labels import called_pitches
+    from tests.conftest import frame, row
+
+    rows = [
+        row(season=2025, game_date=date(2025, 5, 1), pitch_number=1),
+        row(season=2025, game_date=date(2025, 5, 1), pitch_number=2, vx0=None),
+    ]
+    df = frame(rows).with_columns(pl.col("vx0").cast(pl.Float64))
+    heights = pl.DataFrame({"player_id": [10], "height_in": [72.0], "height_source": ["listed"]})
+    umps = pl.DataFrame({"game_pk": [1], "umpire_id": [99]})
+    out = called_pitches(df.lazy(), None, heights, umps, abs_rules(), 2026)
+    assert out["pitch_number"].to_list() == [1]
+    assert out["edge_dist_in"].is_finite().all()

@@ -141,9 +141,32 @@ fetch_statcast(sys.argv[1], sys.argv[2], cache_dir=sys.argv[3])
 """
 
 
-def fetch_missing(cfg: DataConfig, s: Settings, seasons: list[int], retries: int = 3) -> None:
+def drop_unreadable(cache_dir: Path) -> list[Path]:
+    """Delete cached windows a killed fetch left half-written (unreadable parquet footer)."""
+    bad = []
+    for f in sorted(cache_dir.glob("statcast_*.parquet")):
+        try:
+            pl.read_parquet_schema(f)
+        except Exception:
+            f.unlink()
+            bad.append(f)
+    if bad:
+        log.warning("removed %d unreadable cache files: %s", len(bad), [b.name for b in bad])
+    return bad
+
+
+def fetch_missing(
+    cfg: DataConfig,
+    s: Settings,
+    seasons: list[int],
+    retries: int = 15,
+    attempt_timeout_s: int = 240,
+) -> None:
     """Pull seasons the platform hasn't cached, using the PLATFORM's own fetcher in its own
-    venv (subprocess), writing into edgecall's cache. Window caching makes retries resume."""
+    venv (subprocess), writing into edgecall's cache. Window caching makes retries resume.
+
+    Savant sometimes stops responding mid-request and the platform fetcher has no read
+    timeout, so an attempt that runs past `attempt_timeout_s` is killed and retried."""
     import subprocess
 
     have = source_files(cfg, s)
@@ -155,13 +178,19 @@ def fetch_missing(cfg: DataConfig, s: Settings, seasons: list[int], retries: int
         start, end = (f"{season}-{md}" for md in cfg.season_window)
         for attempt in range(1, retries + 1):
             log.info("fetching statcast %s (%s..%s) attempt %d", season, start, end, attempt)
-            r = subprocess.run(
-                [str(py), "-c", _FETCH, start, end, str(own_dir)],
-                cwd=cfg.platform_root,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
+            try:
+                r = subprocess.run(
+                    [str(py), "-c", _FETCH, start, end, str(own_dir)],
+                    cwd=cfg.platform_root,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    timeout=attempt_timeout_s,
+                )
+            except subprocess.TimeoutExpired:
+                log.warning("statcast %s stalled > %ds; retrying", season, attempt_timeout_s)
+                drop_unreadable(own_dir)
+                continue
             if r.returncode == 0:
                 break
             log.warning("statcast %s failed: %s", season, r.stderr.strip().splitlines()[-1:])
