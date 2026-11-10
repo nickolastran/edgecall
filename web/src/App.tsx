@@ -51,7 +51,7 @@ function Tool({ data }: { data: EngineData }) {
     <main className="shell">
       <header className="masthead">
         <h1>EdgeCall</h1>
-        <p>Should you challenge that call? Put the pitch where you saw it, set the game situation, and get the call based on the 2026 ABS season.</p>
+        <p>Would you challenge that call? Put the pitch where you saw it, set the game situation, and get the call based on the ABS data from the latest season.</p>
       </header>
 
       <section className="desk">
@@ -213,8 +213,8 @@ function ThresholdMap({ engine, sit, p }: { engine: Engine; sit: Situation; p: n
     <section className="block">
       <h2>When would this pitch be worth it?</h2>
       <p className="lede">
-        Each cell is the break-even overturn chance for the same pitch, count, runners and challenges left,
-        at a different point in the game. Highlighted cells are where your {Math.round(p * 100)}% read clears the bar.
+        Each cell is the balanced overturn chance for the same pitch, count, runners and challenges left,
+        at a different point in the game. Highlighted cells are where your {Math.round(p * 100)}% read meets expectation.
       </p>
       <div className="heat-wrap">
         <table className="heat">
