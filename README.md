@@ -77,6 +77,15 @@ make web-dev               # http://localhost:5173
 `VITE_API_URL` at build time to score with the live API instead. The API uses the full
 model: real pitch type, movement and catcher, where the static grid uses typical values.
 
+### GitHub Pages
+
+`.github/workflows/pages.yml` builds `web/` and publishes it on every push to `main` that touches
+`web/`. It serves the committed `web/public/data/engine.json`, so run `make export` and commit
+that file to update the numbers.
+
+One-time setup: repo **Settings → Pages → Source: GitHub Actions**. The site is then at
+`https://nickolastran.github.io/edgecall/`.
+
 ### API
 
 ```
