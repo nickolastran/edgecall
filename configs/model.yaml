@@ -1,0 +1,46 @@
+seed: 20260408
+
+splits:
+  # Run value / WE / geometric-label models: train on early seasons, validate, then test on 2026.
+  train_seasons: [2021, 2022, 2023, 2024]
+  valid_seasons: [2025]
+  test_seasons: [2026]
+  # Real-challenge-label fits (sigma MLE, calibration): first half of 2026 vs second half.
+  challenge_fit_end: "2026-06-30"
+
+runvalue:
+  min_state_n: 50                  # cells with fewer PAs are shrunk toward their base-out marginal
+
+win_expectancy:
+  max_score_diff: 10               # |diff| clipped here
+  max_inning: 12                   # innings beyond this pool with it
+  prior_strength: 300              # pseudo-count toward the parametric prior; ΔWE differences amplify cell noise
+
+overturn:
+  near_edge_in: 2.0                # "decision band" for calibration reporting
+  sigma_track_init_in: 0.5
+  lgbm:
+    n_estimators: 600
+    learning_rate: 0.03
+    num_leaves: 31
+    min_child_samples: 200
+    subsample: 0.8
+    subsample_freq: 1
+    colsample_bytree: 0.8
+  hierarchical:
+    distance_bin_in: 1.0
+    max_abs_distance_in: 4.0       # only borderline pitches inform umpire / catcher effects
+    draws: 500
+    tune: 500
+    chains: 2
+    sample_draws: 0                # 0 => ADVI in --sample mode
+    advi_iters: 20000
+
+policy:
+  close_pitch_max_in: 3.0          # a "challengeable" opportunity
+  score_buckets: [-3, -1, 0, 1, 3] # edges (inclusive) for the DP's leverage bucket
+  max_challenges: 4
+
+backtest:
+  n_boot: 1000
+  naive_thresholds_in: [0.5, 1.0, 1.5, 2.0]

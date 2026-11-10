@@ -1,0 +1,44 @@
+{
+ "game_pk": 823244,
+ "home_team_id": 137,
+ "away_team_id": 147,
+ "abs": {
+  "hasChallenges": true,
+  "away": {
+   "usedSuccessful": 0,
+   "usedFailed": 1,
+   "remaining": 1
+  },
+  "home": {
+   "usedSuccessful": 0,
+   "usedFailed": 0,
+   "remaining": 2
+  }
+ },
+ "events": [
+  {
+   "at_bat_index": 27,
+   "pitch_number": 1,
+   "inning": 4,
+   "is_top": true,
+   "batter_id": 676609,
+   "pitcher_id": 657277,
+   "call": "C",
+   "review": {
+    "isOverturned": false,
+    "inProgress": false,
+    "reviewType": "MJ",
+    "challengeTeamId": 147,
+    "player": {
+     "id": 676609,
+     "fullName": "Jos\u00e9 Caballero",
+     "link": "/api/v1/people/676609"
+    }
+   },
+   "px": -0.7672131683136887,
+   "pz": 3.158546657295441,
+   "sz_top": 3.083,
+   "sz_bot": 1.556
+  }
+ ]
+}

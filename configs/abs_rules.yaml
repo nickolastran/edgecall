@@ -1,0 +1,21 @@
+# ABS Challenge System rules, 2026 MLB season.
+# Source (verified 2026-11-08): MLB press release, 2025-09-23,
+#   "MLB announces ABS Challenge System coming to the Major Leagues beginning in the 2026 season"
+#   https://img.mlbstatic.com/opprops-images/image/upload/opprops/jgdgj1bak2bgiskwpdnm.pdf
+first_season: 2026
+challenges_per_team: 2            # "Each club will start the game with two challenges"
+retain_on_success: true           # "all successful challenges are retained"
+extra_inning_grant: 1             # "In each extra inning, a team will be awarded a challenge
+extra_inning_grant_only_if_empty: true  #  if it has none remaining entering the inning."
+regulation_innings: 9
+eligible_challengers: [batter, pitcher, catcher]  # "Only the pitcher, catcher or batter"
+
+zone:
+  # "two-dimensional rectangle that is set in the middle of home plate"
+  plate_width_in: 17.0            # "edges of the zone set to the width of home plate (17 inches)"
+  plane_depth_in: 8.5             # middle of a 17-inch-deep plate, measured from the front edge
+  top_frac_height: 0.535          # "53.5% of the batter's height at the top"
+  bot_frac_height: 0.27           # "27% at the bottom"
+  # "if any part of the ball touches any part of the strike zone, the pitch will be considered a strike"
+  # Official baseball circumference is 9-9.25 in (OBR 3.01), so the radius is 1.43-1.47 in.
+  ball_radius_in: 1.45            # midpoint of the rulebook range

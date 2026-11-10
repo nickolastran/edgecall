@@ -1,0 +1,27 @@
+seasons: [2021, 2022, 2023, 2024, 2025, 2026]
+sample_seasons: [2026]            # --sample (dev mode)
+sample_game_frac: 1.0             # set < 1 to subsample games in dev mode
+
+# Read-only sources from the existing platform (~/stat-sightline). Never written to.
+platform_root: /home/ntran/stat-sightline
+platform_cache_globs:
+  - /home/ntran/stat-sightline/data/raw/statcast_*.parquet
+# edgecall-owned cache for seasons the platform hasn't pulled (filled via the platform's
+# own fetch_statcast, run in its venv).
+own_cache_glob: data/raw/statcast/statcast_*.parquet
+season_window: ["03-15", "10-06"]   # broad; regular season filtered by game_type
+min_windows_per_season: 60          # a season with fewer cached 3-day windows is (re)fetched
+
+# Statcast plate_x/plate_z are at the FRONT edge of the plate through 2025 and at the
+# MID-plate ABS plane from 2026 (verified against MLB feed pX/pZ, DECISIONS.md D7).
+statcast_midplate_from_season: 2026
+
+lake_dir: data/lake                 # partitioned parquet: pitches/season=YYYY/*.parquet
+feed_cache_dir: data/raw/mlb_feed   # one gzipped JSON per game_pk
+people_cache: data/raw/people.parquet
+quarantine_dir: reports/quarantine
+
+mlb_api_base: https://statsapi.mlb.com/api
+http_user_agent: absengine/0.1 (research)
+http_min_interval_s: 0.25           # polite rate limit for the Stats API
+http_concurrency: 4
