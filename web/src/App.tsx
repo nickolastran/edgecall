@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Engine, nearestEdge, zoneDistance, BALL_R, PLATE_HALF_W, type CI, type EngineData, type Player, type Result, type Situation } from "./engine";
+import { Engine, nearestEdge, zoneDistance, BALL_R, PLATE_HALF_W, type CI, type EngineData, type Player, type PolicyRow, type Result, type Situation } from "./engine";
 
 const API = import.meta.env.VITE_API_URL as string | undefined;
 const ZONE_HALF_H = 9.5; // 19 in tall zone (typical certified height ~71 in)
@@ -281,56 +281,82 @@ const ICONS: Record<(typeof LINKS)[number]["icon"], React.ReactNode> = {
   ),
 };
 
-const POLICY_NAMES: Record<string, string> = {
-  never: "Never challenge",
-  dp_perceived: "EdgeCall policy",
-  human: "What 2026 players actually did",
-  dp_oracle: "Perfect information (ceiling)",
-};
-const policyName = (k: string) => POLICY_NAMES[k] ?? k.replace(/^naive_(.+)in$/, "Challenge anything that looks $1+ in off");
+interface Row { key: string; name: string; what: string; v: PolicyRow }
 
 function Backtest({ bt }: { bt: NonNullable<EngineData["backtest"]> }) {
-  const rows = Object.entries(bt.policies).sort((a, b) => (b[1].wins_all as CI).mean - (a[1].wins_all as CI).mean);
-  const max = Math.max(...rows.map(([, v]) => (v.wins_all as CI).hi));
+  const [showAll, setShowAll] = useState(false);
+  const P = bt.policies;
+  const wins = (k: string) => (P[k].wins_all as CI).mean;
+  const naive = Object.keys(P).filter((k) => k.startsWith("naive_")).sort((a, b) => wins(b) - wins(a));
+  const inches = (k: string) => String(Number(k.replace(/^naive_(.+)in$/, "$1")));
+  const rule = (k: string): Row => ({
+    key: k, name: `Simple rule: ${inches(k)}+ inches`, what: `Challenge anything that looks at least ${inches(k)} inches off.`, v: P[k],
+  });
+  const rows: Row[] = [
+    { key: "dp_perceived", name: "EdgeCall", what: "Challenge only when the odds clear the break-even line for that moment.", v: P.dp_perceived },
+    { key: "human", name: "Real 2026 players", what: "What players actually challenged, and how it turned out.", v: P.human },
+    ...(showAll ? naive.map(rule) : naive.slice(0, 1).map(rule)),
+    { key: "never", name: "Never challenge", what: "Leave every call alone.", v: P.never },
+  ].filter((r) => r.v);
+  const max = Math.max(...rows.map((r) => (r.v.wins_all as CI).hi)) * 1.04;
+  const edge = wins("dp_perceived"), human = wins("human");
   const hvd = bt.human_vs_dp;
   return (
     <section className="block">
-      <h2>How much is a good policy worth?</h2>
+      <h2>How many wins are smart challenges worth?</h2>
       <p className="lede">
-        Every adverse call from the held-out half of 2026 ({bt.n_team_games.toLocaleString()} team-games), replayed under each policy with the real challenge rules.
-        Wins and runs are per team over a 162-game season, with 95% intervals from resampling games.
+        We replayed every close call from the second half of 2026 ({bt.n_team_games.toLocaleString()} team-games) under different challenge strategies,
+        using the real rules. Each bar is the extra wins a team would get over a full 162-game season.
+      </p>
+      <p className="bt-head">
+        EdgeCall adds <b>{edge.toFixed(1)} wins</b> a season, <b>{(edge - human).toFixed(1)} more</b> than players managed on their own.
       </p>
       <div className="bt">
-        {rows.map(([k, v]) => {
-          const w = v.wins_all as CI, runs = v.runs_all as CI;
+        {rows.map(({ key, name, what, v }) => {
+          const w = v.wins_all as CI;
           return (
-            <div key={k} className={`bt-row ${k === "dp_perceived" ? "ours" : ""} ${k === "dp_oracle" ? "ceiling" : ""}`}>
-              <span className="bt-name">{policyName(k)}</span>
-              <span className="bt-bar" aria-hidden>
-                <span className="ci" style={{ left: `${(w.lo / max) * 100}%`, width: `${((w.hi - w.lo) / max) * 100}%` }} />
-                <span className="pt" style={{ left: `${(w.mean / max) * 100}%` }} />
-              </span>
-              <span className="bt-num">{w.mean.toFixed(1)} wins <small>({w.lo.toFixed(1)}–{w.hi.toFixed(1)})</small></span>
-              <span className="bt-sub">{runs.mean.toFixed(0)} runs, {v.challenges_per_team_game.toFixed(1)} challenges a game, {(v.overturn_rate * 100).toFixed(0)}% overturned</span>
+            <div key={key} className={`bt-row ${key === "dp_perceived" ? "ours" : ""}`}>
+              <div className="bt-label">
+                <span className="bt-name">{name}</span>
+                <span className="bt-what">{what}</span>
+              </div>
+              <div className="bt-track" role="img" aria-label={`${w.mean.toFixed(1)} wins, likely ${w.lo.toFixed(1)} to ${w.hi.toFixed(1)}`}>
+                <span className="bt-fill" style={{ width: `${(w.mean / max) * 100}%` }} />
+                <span className="bt-range" style={{ left: `${(w.lo / max) * 100}%`, width: `${((w.hi - w.lo) / max) * 100}%` }} />
+              </div>
+              <div className="bt-val">
+                <span className="bt-num">{w.mean.toFixed(1)}<small> wins</small></span>
+                <span className="bt-sub">
+                  {key === "never" ? "no challenges" : `${v.challenges_per_team_game.toFixed(1)} challenges a game, ${Math.round(v.overturn_rate * 100)}% won`}
+                </span>
+              </div>
             </div>
           );
         })}
       </div>
-      {hvd.human_only && hvd.dp_only && (
-        <p className="note">
-          Where players and the policy disagreed: players made {hvd.human_only.n.toLocaleString()} challenges the policy would have skipped
-          (ABS would overturn {pct0(hvd.human_only.p_overturn_abs)}), and passed on {hvd.dp_only.n.toLocaleString()} the policy would have made
-          ({pct0(hvd.dp_only.p_overturn_abs)} would have been overturned, worth more per flip on average).
-        </p>
+      {naive.length > 1 && (
+        <button type="button" className="bt-more" onClick={() => setShowAll(!showAll)} aria-expanded={showAll}>
+          {showAll ? "Show fewer simple rules" : `Show all ${naive.length} simple rules`}
+        </button>
       )}
-      <p className="note">
-        "Perfect information" knows the tracked location, so it's an upper bound no player can reach. The EdgeCall policy only uses
-        a read as noisy as players' real reads, fit from who actually challenged in 2026.
-      </p>
+      <div className="bt-notes">
+        {hvd.human_only && hvd.dp_only && (
+          <p>
+            <b>Where players went wrong.</b> They spent {hvd.human_only.n.toLocaleString()} challenges that EdgeCall would have saved, mostly on
+            low-stakes calls, and passed on {hvd.dp_only.n.toLocaleString()} that it would have made in bigger moments.
+          </p>
+        )}
+        {P.dp_oracle && (
+          <p>
+            <b>The ceiling.</b> Knowing exactly where every pitch crossed would be worth {wins("dp_oracle").toFixed(1)} wins.
+            No player sees that well, so EdgeCall assumes a read as fuzzy as real players' reads.
+          </p>
+        )}
+        <p className="fine">The thin line on each bar is the likely range (95% interval).</p>
+      </div>
     </section>
   );
 }
-const pct0 = (v: number | null) => (v === null ? "–" : `${Math.round(v * 100)}%`);
 
 type SortKey = "net_wins" | "challenges" | "success" | "wins_gained" | "wins_spent" | "runs_gained";
 const ROLES: [string, string][] = [["all", "Everyone"], ["batter", "Batters"], ["catcher", "Catchers"], ["pitcher", "Pitchers"]];

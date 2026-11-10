@@ -28,8 +28,9 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--chalk); color: var(--ink); font: 400 16px/1.5 "Barlow", system-ui, sans-serif; }
-h1, h2, .call, .bt-num, .stepper span, .heat th, .heat td { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; }
+h1, h2, .call, .bt-num, .bt-head b, .stepper span, .heat th, .heat td { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; }
 button, input, select { font: inherit; color: inherit; }
+::selection { background: rgb(242 194 48 / 0.45); color: inherit; }
 :focus-visible { outline: 3px solid var(--bulb); outline-offset: 2px; }
 
 .shell { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; }
@@ -107,20 +108,33 @@ select, .search { padding: 6px 8px; border: 1px solid var(--line); border-radius
 .heat td.na { background: transparent; color: var(--line); }
 @media (prefers-color-scheme: light) { .heat td { color: var(--ink); } }
 
-.bt { display: grid; gap: 14px; max-width: 900px; margin: 0 auto; text-align: left; }
-.bt-row { display: grid; grid-template-columns: minmax(180px, 280px) 1fr auto; grid-template-areas: "name bar num" "name sub sub"; gap: 2px 16px; align-items: center; }
-.bt-name { grid-area: name; }
-.bt-row.ours .bt-name { font-weight: 600; }
-.bt-row.ceiling { color: var(--muted); }
-.bt-bar { grid-area: bar; position: relative; height: 14px; border-left: 1px solid var(--line); }
-.bt-bar .ci { position: absolute; top: 5px; height: 4px; background: var(--line); }
-.bt-bar .pt { position: absolute; top: 0; width: 4px; height: 14px; background: var(--board); transform: translateX(-2px); }
-.bt-row.ours .pt { background: var(--bulb); outline: 1px solid var(--ink); }
-.bt-num { grid-area: num; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.bt-num small { font-size: 14px; font-weight: 500; color: var(--muted); }
-.bt-sub { grid-area: sub; font-size: 13px; color: var(--muted); }
-@media (max-width: 640px) {
-  .bt-row { grid-template-columns: 1fr auto; grid-template-areas: "name num" "bar bar" "sub sub"; }
+.bt-head { font-size: 19px; margin: 0 auto 22px; max-width: 60ch; }
+.bt-head b { font-weight: 600; }
+.bt { display: grid; gap: 10px; max-width: 920px; margin: 0 auto; text-align: left; }
+.bt-row { display: grid; grid-template-columns: 260px 1fr 170px; gap: 18px; align-items: center; padding: 10px 14px; border-radius: 6px; }
+.bt-row.ours { background: var(--paper); }
+.bt-label { display: grid; gap: 2px; }
+.bt-name { font-weight: 600; }
+.bt-what { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.bt-track { position: relative; height: 22px; background: rgb(var(--heat) / 0.12); border-radius: 3px; }
+.bt-fill { position: absolute; inset: 0 auto 0 0; background: var(--board); border-radius: 3px; min-width: 2px; }
+.bt-row.ours .bt-fill { background: var(--bulb); }
+.bt-range { position: absolute; top: 50%; height: 2px; transform: translateY(-50%); background: var(--ink); opacity: 0.55; }
+.bt-val { display: grid; }
+.bt-num { font-size: 24px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.bt-num small { font-size: inherit; font-weight: 500; color: var(--muted); }
+.bt-sub { font-size: 12px; line-height: 1.4; color: var(--muted); }
+.bt-more { margin: 12px auto 0; display: block; background: none; border: 1px solid var(--line); border-radius: 4px; padding: 5px 12px; cursor: pointer; color: var(--ink); }
+.bt-more:hover { border-color: var(--board); }
+.bt-notes { max-width: 72ch; margin: 22px auto 0; display: grid; gap: 10px; font-size: 14px; color: var(--muted); }
+.bt-notes p { margin: 0; }
+.bt-notes b { color: var(--ink); font-weight: 600; }
+.bt-notes .fine { font-size: 12px; }
+@media (max-width: 720px) {
+  .bt-row { grid-template-columns: 1fr auto; grid-template-areas: "label val" "track track"; gap: 8px 14px; }
+  .bt-label { grid-area: label; }
+  .bt-val { grid-area: val; text-align: right; }
+  .bt-track { grid-area: track; }
 }
 
 .umps { border-collapse: collapse; width: 100%; font-size: 15px; }
