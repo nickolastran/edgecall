@@ -50,6 +50,7 @@ function Tool({ data }: { data: EngineData }) {
   return (
     <>
     <main className="shell">
+      <div className="hero">
       <header className="masthead">
         <h1>EdgeCall</h1>
         <p>Would you challenge that call? Put the pitch where you saw it, set the game situation, and get the call based on the ABS data from the latest season.</p>
@@ -104,6 +105,7 @@ function Tool({ data }: { data: EngineData }) {
 
         <Verdict r={r} remote={remote !== null} />
       </section>
+      </div>
 
       <ThresholdMap engine={engine} sit={sit} p={r.p_overturn} />
       {data.backtest && <Backtest bt={data.backtest} />}

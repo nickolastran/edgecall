@@ -34,6 +34,8 @@ button, input, select { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid var(--bulb); outline-offset: 2px; }
 
 .shell { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; }
+/* First screen = the tool. Everything else is below the fold. */
+.hero { min-height: calc(100svh - 24px); padding-bottom: 24px; }
 .masthead { margin-bottom: 24px; }
 .masthead h1 { font-size: 48px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 6px; line-height: 1; }
 .masthead p { margin: 0; max-width: 62ch; color: var(--muted); font-size: 17px; }
@@ -92,7 +94,7 @@ select, .search { padding: 6px 8px; border: 1px solid var(--line); border-radius
 .verdict dd { margin: 0; font-variant-numeric: tabular-nums; }
 .src { margin: 12px 0 0; font-size: 13px; opacity: 0.75; }
 
-.block { margin-top: 48px; text-align: center; }
+.block { margin-top: 64px; text-align: center; }
 .block h2 { font-size: 30px; font-weight: 600; margin: 0 0 6px; line-height: 1.1; }
 .lede { margin: 0 auto 16px; max-width: 72ch; color: var(--muted); }
 .note { margin-inline: auto; max-width: 72ch; color: var(--muted); font-size: 14px; }
