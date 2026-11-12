@@ -117,9 +117,12 @@ function Tool({ data }: { data: EngineData }) {
       <div className="foot-in">
         <p>
           {data.meta.sample ? "Fit on 2026 data only (sample mode). " : ""}
+          {data.windows?.train && data.windows.calibrate && data.windows.test && (
+            <>Trained on {years(data.windows.train)}, calibrated on {years(data.windows.calibrate)}, tested on {data.windows.test.from} to {data.windows.test.to} ({(Object.values(data.windows).reduce((s, w) => s + w.n, 0) / 1e6).toFixed(1)}M pitches). </>
+          )}
           Model data generated {data.meta.generated.slice(0, 10)}.
-          {data.windows?.test && <> Backtest window {data.windows.test.from} to {data.windows.test.to}.</>}
           {" "}Data from MLB Statcast and the MLB Stats API. Not affiliated with MLB.
+          {" "}<a href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy</a> · <a href={`${import.meta.env.BASE_URL}terms.html`}>Terms</a>
         </p>
         <nav className="links" aria-label="Nickolas Tran">
           <span>© {new Date().getFullYear()} Nickolas Tran</span>
@@ -135,6 +138,11 @@ function Tool({ data }: { data: EngineData }) {
     </>
   );
 }
+
+const years = (w: { from: string; to: string }) => {
+  const [a, b] = [w.from.slice(0, 4), w.to.slice(0, 4)];
+  return a === b ? a : `${a}–${b}`;
+};
 
 function useRemote(sit: Situation, f: Form, edge: string): Result | null {
   const [res, setRes] = useState<Result | null>(null);

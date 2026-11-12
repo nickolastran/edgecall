@@ -1,0 +1,15 @@
+/* Shared by privacy.html and terms.html. Tokens mirror src/styles.css. */
+:root { --chalk: #eef1ec; --ink: #13241d; --muted: #5d6b64; --line: #c8d1cb; --board: #1d4d3a; color-scheme: light dark; }
+@media (prefers-color-scheme: dark) {
+  :root { --chalk: #0f1a15; --ink: #e3ebe6; --muted: #93a39a; --line: #2b3d34; --board: #7fc5a4; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--chalk); color: var(--ink); font: 400 16px/1.6 "Barlow", system-ui, sans-serif; }
+main { max-width: 68ch; margin: 0 auto; padding: 32px 16px 64px; }
+h1, h2 { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; line-height: 1.1; }
+h1 { font-size: 40px; margin: 16px 0 4px; }
+h2 { font-size: 24px; margin: 32px 0 8px; }
+a { color: var(--board); }
+.muted { color: var(--muted); font-size: 14px; }
+.back { font-size: 14px; }
+footer { border-top: 1px solid var(--line); margin-top: 48px; padding-top: 12px; }
